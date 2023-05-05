@@ -2,3 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* hides the password eye icon in IE Edge and IE10 */
+::-ms-reveal {
+    display: none !important;
+}
+
+body {
+    background-color: rgb(240, 253, 244);
+}
