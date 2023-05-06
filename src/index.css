@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Source+Code+Pro&display=swap');
+
+
+
 /* hides the password eye icon in IE Edge and IE10 */
 ::-ms-reveal {
     display: none !important;
@@ -9,4 +13,6 @@
 
 body {
     background-color: rgb(240, 253, 244);
+    font-family: 'Montserrat', sans-serif;
+    /* font-family: 'Source Code Pro', monospace; */
 }
