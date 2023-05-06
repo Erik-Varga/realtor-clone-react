@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 import { AiFillGithub } from "react-icons/ai";
+import { BsCodeSlash } from "react-icons/bs";
 
 export default function Footer() {
   return (
@@ -12,10 +13,11 @@ export default function Footer() {
               <AiFillGithub className='ml-1' />
           </Link>
         </span>
+        
         <span>
         <Link to="https://github.com/Erik-Varga/realtor-clone-react" target="_blank" className='flex items-center justify-center'>
           &nbsp;
-          Source Code
+          Source Code &nbsp;<BsCodeSlash />
         </Link>
         </span>
     </div>
