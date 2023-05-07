@@ -4,6 +4,7 @@ import { getAuth, updateProfile } from "firebase/auth";
 import { db } from "../firebase"
 import { doc, updateDoc } from "firebase/firestore";
 import { toast } from 'react-toastify';
+import { FcHome } from "react-icons/fc";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -80,12 +81,15 @@ export default function Profile() {
             </div>
 
             {/* Login */}
-            {/* <button
-              className="w-full px-7 py-3 bg-blue-600 text-white text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-150 ease-in-out active:bg-blue-800"
+            <button
+              className="w-full flex flex-col justify-center items-center px-7 py-3 bg-blue-600 text-white text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-150 ease-in-out active:bg-blue-800"
               type="submit"
             >
-              Register
-            </button> */}
+              <Link to="/create-listing" className='flex justify-center items-center'>
+                <FcHome className='mr-2 text-4xl bg-red-200 rounded-full p-1 border-2' />&nbsp;
+                Rent or Sell Your Home
+              </Link>
+            </button>
 
 
         </form>
