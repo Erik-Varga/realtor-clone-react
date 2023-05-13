@@ -1,8 +1,20 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from "react-router-dom";
 import { BsListCheck } from "react-icons/bs";
+import Spinner from '../components/Spinner';
+import { toast } from 'react-toastify';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
+import { v4 as uuidv4 } from 'uuid';
+import { serverTimestamp, addDoc, collection } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function CreateListing() {
+    const navigate = useNavigate();
+    const auth = getAuth();
+    const [geolocationEnabled, setGeoLocationEnabled] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         type: "rent",
         name: "",
@@ -15,6 +27,9 @@ export default function CreateListing() {
         offer: true,
         regularPrice: 0,
         discountPrice: 0,
+        latitude: 0,
+        longitude: 0,
+        images: {}
     });
 
     const { 
@@ -28,17 +43,151 @@ export default function CreateListing() {
         description, 
         offer,
         regularPrice,
-        discountPrice
+        discountPrice,
+        latitude,
+        longitude,
+        images,
     } = formData;
 
-    function onChange() {
+    function onChange(e) {
+        let boolean = null;
+        if (e.target.value === 'true') {
+            boolean = true;
+        }
+        if (e.target.value === 'false') {
+            boolean = false;
+        }
+        
+        // Files
+        if (e.target.files) {
+           setFormData((prevState) => ({
+            ...prevState,
+            images: e.target.files,
+           }));
+        }
 
+        // Text/Boolean/Number
+        if (!e.target.files) {
+           setFormData((prevState) => ({
+            ...prevState,
+            [e.target.id]: boolean ?? e.target.value,
+           }));
+        }
+    }
+
+    async function onSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
+
+        if (+discountPrice >= +regularPrice) {
+            setLoading(false);
+            toast.error("Discount Price must be less Regular Price");
+            return;
+        }
+
+        if (images.length > 6) {
+            setLoading(false);
+            toast.error("Maximum of 6 images allowed.");
+            return;
+        }
+
+        let geolocation = {};
+        let location;
+        
+        if (geolocationEnabled) {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GEOCODE_API_KEY}`);
+            const data = await response.json();
+            console.log(data);
+            geolocation.lat = data.results[0]?.geometry.location.lat ?? 0;
+            geolocation.lng = data.results[0]?.geometry.location.lng ?? 0;
+
+            location = data.status === "ZERO_RESULTS" && undefined;
+
+            // || location.includes("undefined")
+            if (location === undefined) {
+                setLoading(false);
+                toast.error("Please enter a valid address");
+                return;
+            }
+        } else {
+            geolocation.lat = latitude;
+            geolocation.lng = longitude;
+        }
+
+        async function storeImage(image) {
+            return new Promise((resolve, reject)=>{
+                const storage = getStorage();
+                const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+                const storageRef = ref(storage, filename);
+                const uploadTask = uploadBytesResumable(storageRef, image);
+                
+                // Register three observers:
+                // 1. 'state_changed' observer, called any time the state changes
+                // 2. Error observer, called on failure
+                // 3. Completion observer, called on successful completion
+
+                uploadTask.on('state_changed', 
+                (snapshot) => {
+                    // Observe state change events such as progress, pause, and resume
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                        }
+                    }, 
+                    (error) => {
+                        // Handle unsuccessful uploads
+                        reject(error)
+                    }, 
+                    () => {
+                        // Handle successful uploads on complete
+                        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            resolve(downloadURL);
+                        });
+                    }
+                );
+            });
+        }
+
+        const imgUrls = await Promise.all(
+            [...images].map((image)=>storeImage(image))).catch((error)=>{
+                setLoading(false);
+                toast.error("Image(s) not uploaded");
+                return;
+            });
+        
+        const formDataCopy = {
+            ...formData,
+            imgUrls,
+            geolocation,
+            timestamp: serverTimestamp(),
+        };
+        delete formDataCopy.images;
+        !formDataCopy.offer && delete formDataCopy.discountPrice;
+        delete formDataCopy.latitude;
+        delete formDataCopy.longitude;
+
+        const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
+        setLoading(false);
+        toast.success('Listing created');
+        navigate(`/category/${formDataCopy.type}/${docRef}`);
+    }
+
+    if (loading) {
+        return <Spinner />;
     }
 
   return (
     <main className='max-w-md px-2 mx-auto'>
         <h1 className='text-3xl text-center mt-6 font-bold'>Create a Listing</h1>
-        <form>
+        <form onSubmit={onSubmit}>
 
             {/* Sell / Rent */}
             <p className='text-lg mt-3 font-semibold'>Sell / Rent</p>
@@ -131,6 +280,24 @@ export default function CreateListing() {
 
             </div>
 
+            {!geolocationEnabled && (
+                <div className='flex space-x-6 justify-start mb-6'>
+
+                    {/* Latitude */}
+                    <div className='text-lg font-semibold'>
+                        <p>Latitude</p>
+                        <input className='w-full px-4 py-2 text-center text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600' type='number' id='latitude' value={latitude} min='-90' max='90' step='any' onChange={onChange} required></input>
+                    </div>
+
+                    {/* Longitude */}
+                    <div className='text-lg font-semibold'>
+                        <p>Longitude</p>
+                        <input className='w-full px-4 py-2 text-center text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600' type='number' id='longitude' value={longitude} min='-180' max='180' step='any' onChange={onChange} required></input>
+                    </div>
+
+                </div>
+            )}
+
             {/* Description */}
             <p className='text-lg mt-3 font-semibold'>Description</p>
             <div>
@@ -207,10 +374,10 @@ export default function CreateListing() {
               className="w-full mb-6 flex flex-col justify-center items-center px-7 py-3 bg-blue-600 text-white text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg transition duration-150 ease-in-out active:bg-blue-800"
               type="submit"
             >
-              <Link to="/" className='flex justify-center items-center'>
+              <div className='flex justify-center items-center'>
                 <BsListCheck className='mr-2 text-4xl bg-transparent rounded-full p-1 border-2' />&nbsp;
                 Create Listing
-              </Link>
+              </div>
             </button>
         </form>
     </main>
