@@ -6,14 +6,14 @@ import { toast } from 'react-toastify';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
-import { collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function EditListing() {
     const navigate = useNavigate();
     const auth = getAuth();
     const [geolocationEnabled, setGeoLocationEnabled] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [listing, setListing] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -60,9 +60,9 @@ export default function EditListing() {
     }, [auth.currentUser.uid, listing, navigate]);
 
     useEffect(()=>{
-        setLoading(true);
+        // setLoading(true);
         async function fetchListing() {
-            const docRef = doc(db, 'listings', params.listingID);
+            const docRef = doc(db, 'listings', params.listingId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 setListing(docSnap.data());
@@ -74,7 +74,7 @@ export default function EditListing() {
             }
         }
         fetchListing();
-    }, [navigate, params.listingID]);
+    }, [navigate, params.listingId]);
 
 
 
@@ -168,6 +168,8 @@ export default function EditListing() {
                         case 'running':
                             console.log('Upload is running');
                             break;
+                        default:
+                            break;
                         }
                     }, 
                     (error) => {
@@ -203,7 +205,7 @@ export default function EditListing() {
         !formDataCopy.offer && delete formDataCopy.discountPrice;
         delete formDataCopy.latitude;
         delete formDataCopy.longitude;
-        const docRef = doc(db, 'listings', params.listingID);
+        const docRef = doc(db, 'listings', params.listingId);
 
         await updateDoc(docRef, formDataCopy);
         setLoading(false);
