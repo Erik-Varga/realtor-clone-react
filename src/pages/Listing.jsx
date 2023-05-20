@@ -8,7 +8,8 @@ import Spinner from '../components/Spinner';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { EffectFade, Autoplay, Navigation, Pagination } from 'swiper';
 import "swiper/css/bundle";
-import { FaShare } from 'react-icons/fa';
+import { FaShare, FaBath, FaBed, FaParking, FaChair } from 'react-icons/fa';
+import { MdLocationOn, MdEdit } from 'react-icons/md';
 
 export default function Listing() {
     const navigate = useNavigate();
@@ -76,6 +77,54 @@ export default function Listing() {
       {shareLinkCopied && (
         <p className='fixed top-[7%] right-[15%] z-20 font-semibold border-2 border-gray-200 round-md bg-white text-green-800 p-2'>Link Copied!</p>
       )}
+
+      <div className='flex flex-col md:flex-row max-w-6xl lg:mx-auto m-4 p-4 rounded-lg border-3 shadow-lg lg:space-x-4'>
+        <div className='w-full h-[250px] lg-[400]'>
+          <p className='text-2xl font-bold mb-3 text-blue-900'>
+            {listing.name} - 
+            $
+            {listing.offer
+            ? listing.discountPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") 
+            : listing.regularPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            {listing.type === "rent" ? " / month" : ""}
+          </p>
+          <p className='flex items-center mt-6 mb-3 font-semibold mr-1'>
+            <MdLocationOn className='h-4 w-4 text-green-600' />
+            {listing.address}
+          </p>
+          <div className='flex justify-start items-center space-x-4 w-[75%]'>
+            <p className='bg-red-800 w-full max-w-[200px] rounded-md p-1 text-white text-center font-semibold shadow-md'>{listing.type === "rent" ? "Rent" : "Sale"}</p>
+            {listing.offer && (
+            <p className='bg-green-800 w-full max-w-[200px] rounded-md p-1 text-white text-center font-semibold shadow-md'>${listing.regularPrice - listing.discountPrice} discount</p>
+            )}
+          </div>
+          <p className='font-semibold mt-3 mb-3'>
+            Description - <span>{listing.description}</span>
+          </p>
+          <div className='flex items-center mt-[10px] space-x-3'>
+            <ul className='w-full flex items-center justify-evenly'>
+              <li className='flex items-center font-bold text-xs gap-1'>
+                <FaBed className='text-[20px]' />
+                {listing.bedrooms > 1 ? `${listing.bedrooms} Beds` : "1 Bed"}
+              </li>
+              <li className='flex items-center font-bold text-xs gap-1'>
+                <FaBath className='text-[18px]' />
+              {listing.bathrooms > 1 ? `${listing.bathrooms} Baths` : "1 Bath"}</li>
+              <li className='flex items-center font-bold text-xs gap-1'>
+              <FaParking className='text-[18px]' />
+                {listing.parking ? `${listing.bedrooms} Parking Spot Available` : "No Parking"}
+              </li>
+              <li className='flex items-center font-bold text-xs gap-1'>
+              <FaChair className='text-[18px]' />
+                {listing.furnished ? `${listing.bathrooms} Furnished` : "Not Furnished"}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className='bg-blue-300 w-full h-[200px] lg-[400] z-10 overflow-x-hidden'></div>
+      </div>
+      
     </main>
   );
 }
