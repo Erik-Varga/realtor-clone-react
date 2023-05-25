@@ -11,6 +11,7 @@ import "swiper/css/bundle";
 import { FaShare, FaBath, FaBed, FaParking, FaChair } from 'react-icons/fa';
 import { MdLocationOn } from 'react-icons/md';
 import Contact from "../components/Contact";
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 export default function Listing() {
     const navigate = useNavigate();
@@ -128,12 +129,24 @@ export default function Listing() {
             <button className='px-7 py-3 bg-blue-600 text-center text-white font-medium text-sm uppercase rounded shadow-md w-full hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg transition duration-150 ease-in-out' onClick={()=> setContactLandlord(true)}>Contact Landlord</button>
           </div>
           )}
-          {/* if contactLandlord is true, than show contact compoenent */}
+          {/* if contactLandlord is true, than show contact component */}
           {contactLandlord && (
             <Contact userRef={listing.userRef} listing={listing} />
           )}
         </div>
-        <div className='bg-blue-300 w-full h-[200px] lg-[400] z-10 overflow-x-hidden'></div>
+        <div className='w-full h-[200px] md:h-[400px] z-10 overflow-x-hidden mt-6 md:mt-0 md:ml-2'>
+          <MapContainer center={[listing.geolocation.lat, listing.geolocation.lng]} zoom={13} scrollWheelZoom={false} style={{height: '100%', width: '100%'}}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[listing.geolocation.lat, listing.geolocation.lng]}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+          </MapContainer>
+        </div>
       </div>
       
     </main>
