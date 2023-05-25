@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { EffectFade, Autoplay, Navigation, Pagination } from 'swiper';
-import "swiper/css/bundle";
+import 'swiper/css/bundle';
 import { FaShare, FaBath, FaBed, FaParking, FaChair } from 'react-icons/fa';
 import { MdLocationOn } from 'react-icons/md';
 import Contact from "../components/Contact";
@@ -123,16 +123,18 @@ export default function Listing() {
                 {listing.furnished ? `${listing.bathrooms} Furnished` : "Not Furnished"}
               </li>
             </ul>
+            {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
+              <div className='mt-6'>
+                <button onClick={() => setContactLandlord(true)} className='px-7 py-3 bg-blue-600 text-center text-white font-medium text-sm uppercase rounded shadow-md w-full hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg transition duration-150 ease-in-out'>Contact Landlord</button>
+              </div>
+            )}
+
+            {/* if contactLandlord is true, than show contact component */}
+            {contactLandlord && (
+              <Contact userRef={listing.userRef} listing={listing} />
+            )}
+            
           </div>
-          {listing.userRef !== auth.currentUser?.uid && !contactLandlord && (
-          <div className='mt-6'>
-            <button className='px-7 py-3 bg-blue-600 text-center text-white font-medium text-sm uppercase rounded shadow-md w-full hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg transition duration-150 ease-in-out' onClick={()=> setContactLandlord(true)}>Contact Landlord</button>
-          </div>
-          )}
-          {/* if contactLandlord is true, than show contact component */}
-          {contactLandlord && (
-            <Contact userRef={listing.userRef} listing={listing} />
-          )}
         </div>
         <div className='w-full h-[200px] md:h-[400px] z-10 overflow-x-hidden mt-6 md:mt-0 md:ml-2'>
           <MapContainer center={[listing.geolocation.lat, listing.geolocation.lng]} zoom={13} scrollWheelZoom={false} style={{height: '100%', width: '100%'}}>
@@ -142,7 +144,7 @@ export default function Listing() {
             />
             <Marker position={[listing.geolocation.lat, listing.geolocation.lng]}>
               <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
+                {listing.address}
               </Popup>
             </Marker>
           </MapContainer>
