@@ -10,6 +10,7 @@ import ListingItem from '../components/ListingItem'
 export default function Profile() {
   const navigate = useNavigate();
   const auth = getAuth();
+
   const [changeDetail, setChangeDetail] = useState(false);
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,9 @@ export default function Profile() {
 
   useEffect(() => {
     async function fetchUserListings() {
+      // gets the reference
       const listingRef = collection(db, "listings");
+      // creates the query
       const q = query(listingRef, where("userRef", "==", auth.currentUser.uid), orderBy("timestamp", "desc"));
       const querySnap = await getDocs(q);
       let listings = [];
