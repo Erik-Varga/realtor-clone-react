@@ -43,7 +43,7 @@ export default function Slider() {
 
   return (
     listings && (
-      <>
+      <div className='shadow-lg'>
         <Swiper
           slidesPerView={1}
           navigation
@@ -80,7 +80,7 @@ export default function Slider() {
             </SwiperSlide>
           ))}
         </Swiper>
-      </>
+      </div>
     )
   );
 }
