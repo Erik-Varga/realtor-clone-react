@@ -75,7 +75,7 @@ export default function SignUp() {
           {/* Form */}
           <form onSubmit={onSubmit}>
             <input
-              className="w-full mb-6 px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+              className="w-full mb-6 px-4 py-2 text-md text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               type="text"
               id="fullname"
               value={fullname}
@@ -84,7 +84,7 @@ export default function SignUp() {
             />
 
             <input
-              className="w-full mb-6 px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+              className="w-full mb-6 px-4 py-2 text-md text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
               type="email"
               id="email"
               value={email}
@@ -93,7 +93,7 @@ export default function SignUp() {
             />
             <div className="relative mb-6">
               <input
-                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
+                className="w-full px-4 py-2 text-md text-gray-700 bg-white border-gray-300 rounded transition ease-in-out"
                 type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
@@ -103,19 +103,19 @@ export default function SignUp() {
 
               {showPassword ? (
                 <AiFillEyeInvisible
-                  className="absolute right-3 top-3 text-xl cursor-pointer transition ease-in-out"
+                  className="absolute right-3 top-3 text-md cursor-pointer transition ease-in-out"
                   onClick={() => setShowPassword((prevState) => !prevState)}
                 />
               ) : (
                 <AiFillEye
-                  className="absolute right-3 top-3 text-xl cursor-pointer transition ease-in-out"
+                  className="absolute right-3 top-3 text-md cursor-pointer transition ease-in-out"
                   onClick={() => setShowPassword((prevState) => !prevState)}
                 />
               )}
             </div>
 
-            <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">
-              <p className="mb-6">
+            <div className="flex flex-col justify-between whitespace-nowrap text-sm sm:text-lg">
+              <p>
                 Already have an account?
                 <Link
                   to="/login"
@@ -124,7 +124,7 @@ export default function SignUp() {
                   Login
                 </Link>
               </p>
-              <p>
+              <p className="mb-6">
                 <Link
                   to="/forgot-password"
                   className="text-blue-600 hover:text-red-800 hover:font-semibold transition duration-800 ease-in-out"

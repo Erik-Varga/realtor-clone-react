@@ -99,9 +99,8 @@ useEffect(()=>{
       </div>
     </>
     ) : (
-      <p>There are no current rents</p>
+      <p>There are no current listings</p>
     )}
-
 
     </div>
   )
